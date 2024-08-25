@@ -1,0 +1,111 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMBa0hm+eqAqDRn2Tn2zhNX",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/paulpm1031/VinayGH/blob/main/NSE%20test\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Step 1: Install necessary libraries\n",
+        "!pip install requests beautifulsoup4\n",
+        "\n",
+        "# Step 2: Import the libraries\n",
+        "import requests\n",
+        "from bs4 import BeautifulSoup\n",
+        "\n",
+        "# Step 3: Define a function to fetch stock data\n",
+        "def get_stock_data(stock_code):\n",
+        "    # Define the URL for the stock data (NSE URL)\n",
+        "    url = f'https://www.nseindia.com/get-quotes/equity?symbol={stock_code}'\n",
+        "\n",
+        "    # Create a session object\n",
+        "    session = requests.Session()\n",
+        "\n",
+        "    # Set headers to mimic a real browser request\n",
+        "    headers = {\n",
+        "        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'\n",
+        "    }\n",
+        "\n",
+        "    # Send a GET request to the URL\n",
+        "    response = session.get(url, headers=headers)\n",
+        "\n",
+        "    # Check if the request was successful\n",
+        "    if response.status_code == 200:\n",
+        "        # Parse the page content\n",
+        "        soup = BeautifulSoup(response.text, 'html.parser')\n",
+        "\n",
+        "        # Extracting relevant information\n",
+        "        # The structure of the HTML may change, so you need to inspect and adjust the selectors\n",
+        "        data = soup.find_all('div', {'class': 'qwidget'})\n",
+        "\n",
+        "        # Process and return the data\n",
+        "        stock_data = {}\n",
+        "        for item in data:\n",
+        "            try:\n",
+        "                key = item.find('div', {'class': 'qwidget-symbol'}).text.strip()\n",
+        "                value = item.find('div', {'class': 'qwidget-price'}).text.strip()\n",
+        "                stock_data[key] = value\n",
+        "            except AttributeError:\n",
+        "                continue\n",
+        "\n",
+        "        return stock_data\n",
+        "    else:\n",
+        "        return f\"Failed to fetch data. HTTP Status code: {response.status_code}\"\n",
+        "\n",
+        "# Step 4: Define the stock code and fetch the data\n",
+        "stock_code = 'TCS'  # Example stock code\n",
+        "data = get_stock_data(stock_code)\n",
+        "\n",
+        "# Step 5: Display the fetched data\n",
+        "print(data)\n"
+      ],
+      "metadata": {
+        "id": "ItbDa533mOA0",
+        "outputId": "1fe45235-08f2-4ce7-fa87-08b82fb0148c",
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        }
+      },
+      "execution_count": 18,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Requirement already satisfied: requests in /usr/local/lib/python3.10/dist-packages (2.32.3)\n",
+            "Requirement already satisfied: beautifulsoup4 in /usr/local/lib/python3.10/dist-packages (4.12.3)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.10/dist-packages (from requests) (3.3.2)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.10/dist-packages (from requests) (3.7)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.10/dist-packages (from requests) (2.0.7)\n",
+            "Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.10/dist-packages (from requests) (2024.7.4)\n",
+            "Requirement already satisfied: soupsieve>1.2 in /usr/local/lib/python3.10/dist-packages (from beautifulsoup4) (2.6)\n",
+            "{}\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
